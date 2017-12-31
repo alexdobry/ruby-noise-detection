@@ -30,9 +30,9 @@ HW_DETECTION_CMD = "cat /proc/asound/cards"
 SAMPLE_DURATION = 5 # seconds
 FORMAT = 'S16_LE'   # this is the format that my USB microphone generates
 THRESHOLD = 0.05
-RECORD_FILENAME='/tmp/noise.wav'
+RECORD_FILENAME='/home/pi/noise_detection/noise.wav'
 LOG_FILE='/var/log/noise_detector.log'
-PID_FILE='/etc/noised/noised.pid'
+PID_FILE='/home/pi/noise_detection/noised.pid'
 
 logger = Logger.new(LOG_FILE)
 logger.level = Logger::DEBUG
@@ -130,7 +130,7 @@ optparse.parse!
 
 #Now raise an exception if we have not found a host option
 raise OptionParser::MissingArgument if options[:microphone].nil?
-raise OptionParser::MissingArgument if options[:email].nil?
+#raise OptionParser::MissingArgument if options[:email].nil?
 
 if options[:verbose]
    logger.debug("Script parameters configurations:")
@@ -168,18 +168,18 @@ pid = fork do
       logger.info("Sound detected!!!")
   
   	# Read a file
-	filecontent = File.open(RECORD_FILENAME ,"rb") {|io| io.read}
+    #filecontent = File.open(RECORD_FILENAME ,"rb") {|io| io.read}
  	
-        encoded = [filecontent].pack("m")    # base64 econding
-puts  value = %x[/usr/sbin/sendmail #{options[:email]} << EOF
-subject: WARNING: Noise Detected
-from: home@mornati.net
-Content-Description: "noise.wav"
-Content-Type: audio/x-wav; name="noise.wav"
-Content-Transfer-Encoding:base64
-Content-Disposition: attachment; filename="noise.wav"
-#{encoded}
-EOF] 
+    #encoded = [filecontent].pack("m")    # base64 econding
+        #puts  value = %x[/usr/sbin/sendmail #{options[:email]} << EOF
+        #subject: WARNING: Noise Detected
+        #from: home@mornati.net
+        #Content-Description: "noise.wav"
+        #Content-Type: audio/x-wav; name="noise.wav"
+        #Content-Transfer-Encoding:base64
+        #Content-Disposition: attachment; filename="noise.wav"
+        ##{encoded}
+        #EOF] 
     else
       logger.debug("No sound detected...")
     end
