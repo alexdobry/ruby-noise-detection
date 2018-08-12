@@ -30,9 +30,9 @@ HW_DETECTION_CMD = "cat /proc/asound/cards"
 SAMPLE_DURATION = 5 # seconds
 FORMAT = 'S16_LE'   # this is the format that my USB microphone generates
 THRESHOLD = 0.05
-RECORD_FILENAME='/home/pi/noise_detection/noise.wav'
+RECORD_FILENAME='/home/pi/ruby-noise-detection/noise.wav'
 LOG_FILE='/var/log/noise_detector.log'
-PID_FILE='/home/pi/noise_detection/noised.pid'
+PID_FILE='/home/pi/ruby-noise-detection/noised.pid'
 
 logger = Logger.new(LOG_FILE)
 logger.level = Logger::DEBUG
@@ -41,17 +41,17 @@ logger.info("Noise detector started @ #{DateTime.now.strftime('%d/%m/%Y %H:%M:%S
 
 
 def self.check_required()
-  if !File.exists?('/usr/bin/arecord')
+  if !File.exist?('/usr/bin/arecord')
     warn "/usr/bin/arecord not found; install package alsa-utils"
     exit 1
   end
 
-  if !File.exists?('/usr/bin/sox')
+  if !File.exist?('/usr/bin/sox')
     warn "/usr/bin/sox not found; install package sox"
     exit 1
   end
 
-  if !File.exists?('/proc/asound/cards')
+  if !File.exist?('/proc/asound/cards')
     warn "/proc/asound/cards not found"
     exit 1
   end
@@ -165,8 +165,10 @@ pid = fork do
     amplitude = $1.to_f
     logger.debug("Detected amplitude: #{amplitude}") if options[:verbose]
     if amplitude > THRESHOLD
-      logger.info("Sound detected!!!")
-  
+      logger.info("Sound detected!!!") if options[:verbose]
+      res = `curl localhost:8080/apns`
+      logger.info("res: #{res}") if options[:verbose]
+      
   	# Read a file
     #filecontent = File.open(RECORD_FILENAME ,"rb") {|io| io.read}
  	
